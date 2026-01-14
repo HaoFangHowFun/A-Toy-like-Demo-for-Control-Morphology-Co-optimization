@@ -17,7 +17,7 @@ Ensure you have [Conda](https://docs.conda.io/en/latest/) installed.
 
 ```bash
 # Clone the repository
-git clone [https://github.com/HaoFangHowFun/A-Toy-like-Demo-for-Control-Morphology-Co-optimization.git](https://github.com/HaoFangHowFun/A-Toy-like-Demo-for-Control-Morphology-Co-optimization.git)
+git clone https://github.com/HaoFangHowFun/A-Toy-like-Demo-for-Control-Morphology-Co-optimization.git
 cd A-Toy-like-Demo-for-Control-Morphology-Co-optimization
 
 # Create environment from the provided YAML file
