@@ -91,7 +91,6 @@ This section summarizes key technical points discussed during the project review
 
 * **Code Reference:** See the model initialization in [`train.py`](./train.py) (where `PPO("MlpPolicy", ...)` is defined).
 
----
 
 ### Q2: What parameters are configured for the Bayesian optimization?
 **Answer:** The co-optimization uses **Optuna** (which implements the **TPE - Tree-structured Parzen Estimator** algorithm). Key configurations include:
@@ -100,7 +99,6 @@ This section summarizes key technical points discussed during the project review
 
 * **Code Reference:** See the `objective` function and `trial.suggest_float` in [`train.py`](./train.py).
 
----
 
 ### Q3: How does link width affect momentum, and how is this handled under position control?
 **Answer:** In our co-optimization framework, link width ($w$) is a key morphological parameter that dictates the system's dynamic behavior:
@@ -115,13 +113,12 @@ This section summarizes key technical points discussed during the project review
 ### Q4: How is the Reward Function defined for the RL agent?
 **Answer:** The reward function is a multi-objective weighted sum designed to balance task completion, efficiency, and safety. It consists of the following components:
 1.  **Task Progress (Distance)**: A dense reward based on the Euclidean distance between the ball and the target goal.
-2.  **Impact Penalty (Anti-Smacking)**: To prevent aggressive striking, we penalize excessive contact forces: $r_{impact} = -w_f \cdot \|F_{contact}\|^2$.
+2.  **Impact Penalty (Anti-Smacking)**: To prevent aggressive striking, we penalize excessive contact forces.
 3.  **Control Effort (Action Regularization)**: To ensure smooth motion and energy efficiency, we penalize large or sudden joint torques and arbitrary swinging.
 4.  **Success Bonus**: A sparse positive reward granted only when the ball successfully reaches the target zone.
 
 * **Code Reference:** Detailed logic can be found in the `compute_reward()` or `step()` function in [`CoDesignEnv.py`](./CoDesignEnv.py).
 
----
 
 ### Q5: What specific metric is passed to the Bayesian Optimizer (BO)?
 **Answer:** We pass the **Mean Evaluation Reward** to the Bayesian Optimizer (Optuna). 
