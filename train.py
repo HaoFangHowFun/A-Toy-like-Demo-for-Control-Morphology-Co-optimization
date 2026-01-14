@@ -11,7 +11,13 @@ from stable_baselines3.common.monitor import Monitor
 from CoDesignEnv import CoDesignGraspEnv
 
 def objective(trial):
-    sigma = 0.2
+    try:
+        if trial.study.best_value >10000:
+            sigma = 0.3
+        else:
+            sigma = 0.3
+    except:
+            sigma = 0.3
     
     try:
         # Get best parameters so far
@@ -24,7 +30,7 @@ def objective(trial):
             new_high = np.clip(center + span, new_low + 0.001, abs_high)
             return float(new_low), float(new_high)
 
-        l1_range = get_range("l1", 0.3, 0.6)
+        l1_range = get_range("l1", 0.2, 0.5)
         l2_range = get_range("l2", 0.2, 0.5)
         w_range = get_range("w", 0.01, 0.06)
         beta_range = get_range("beta", 0.0, 1.2)
@@ -32,7 +38,7 @@ def objective(trial):
         
     except (ValueError, KeyError):
         # Global search for initial stage
-        l1_range, l2_range = (0.3, 0.6), (0.2, 0.5)
+        l1_range, l2_range = (0.2, 0.6), (0.2, 0.5)
         w_range, beta_range = (0.01, 0.06), (0.0, 1.2)
         print(f" Trial {trial.number}: Global Searching...")
 
@@ -52,17 +58,17 @@ def objective(trial):
     model_path = "best_model_checkpoint.zip"
     
     if os.path.exists(model_path):
-        print(f"🔥 Trial {trial.number}: Loading best weights for fine-tuning...")
+        print(f"Trial {trial.number}: Loading best weights for fine-tuning...")
         model = PPO.load(model_path, env=env, device="cpu")
         model.learning_rate = 1e-4  
     else:
-        print(f"🌱 Trial {trial.number}: Training from scratch...")
+        print(f"Trial {trial.number}: Training from scratch...")
         model = PPO("MlpPolicy", env, verbose=0, device="cpu", n_steps=1024, learning_rate=3e-4)
 
     # Training
     try:
         if trial.study.best_value >10000:
-            model.learn(total_timesteps=30000)
+            model.learn(total_timesteps=40000)
         else:
             model.learn(total_timesteps=15000)
     except:
@@ -95,10 +101,10 @@ def objective(trial):
 
     if mean_reward > current_best:
         model.save("best_model_checkpoint")
-        print(f"🏆 Trial {trial.number} New Record: {mean_reward:.2f}. Weights updated.")
+        print(f"Trial {trial.number} New Record: {mean_reward:.2f}. Weights updated.")
 
         # Record demo video
-        print(f"🎥 Recording demo video for Trial {trial.number}...")
+        print(f"Recording demo video for Trial {trial.number}...")
 
         # Disconnect DIRECT mode
         raw_env.close() 
@@ -141,11 +147,11 @@ if __name__ == "__main__":
     
     if len(study.trials) == 0:
         study.enqueue_trial(difficult_initial_params)
-        print(f"🚩 Enqueued initial trial: {difficult_initial_params}")
+        print(f"Enqueued initial trial: {difficult_initial_params}")
 
-    print("🚀 Starting Co-Design optimization...")
+    print("Starting Co-Design optimization...")
     study.optimize(objective, n_trials=100)
 
     # Results
     print("\n" + "="*30)
-    print("🏆 Optimization Complete!")
+    print("Optimization Complete!")
