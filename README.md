@@ -11,7 +11,7 @@ This repository implements a "Hardware-in-the-loop" optimization cycle:
 
 ![Framwork Design Layout](./assets/codesign_framwork.png)
 
-## Video Link
+#### Video Link
 [Watch the video](https://youtu.be/NjFz9qAf6IE)
 ---
 
@@ -82,5 +82,53 @@ python test.py
 * **Checkpointing**: Saves the best-performing policy and hardware metadata for reproducibility.
 * **Visualization**: Automatic video logging of new performance records during training.
 
+## 📝 Q&A Section (Technical Discussion)
 
+This section summarizes key technical points discussed during the project review.
+
+### Q1: Which Reinforcement Learning model is used in this framework?
+**Answer:** We utilize **PPO (Proximal Policy Optimization)** from the [Stable Baselines3](https://stable-baselines3.readthedocs.io/) library. PPO was chosen for its balance between ease of tuning, sample efficiency, and stability in continuous action spaces common in robotics.
+
+* **Code Reference:** See the model initialization in [`train.py`](./train.py) (where `PPO("MlpPolicy", ...)` is defined).
+
+---
+
+### Q2: What parameters are configured for the Bayesian optimization?
+**Answer:** The co-optimization uses **Optuna** (which implements the **TPE - Tree-structured Parzen Estimator** algorithm). Key configurations include:
+* **Search Space**: Defined for link lengths ($l_1, l_2$), joint width ($w$), and end-effector tilt angle ($\beta$).
+* **Local Refinement**: A `sigma` factor is used to narrow the search range around the best-known parameters to perform fine-tuning.
+
+* **Code Reference:** See the `objective` function and `trial.suggest_float` in [`train.py`](./train.py).
+
+---
+
+### Q3: How does link width affect momentum, and how is this handled under position control?
+**Answer:** In our co-optimization framework, link width ($w$) is a key morphological parameter that dictates the system's dynamic behavior:
+
+1.  **Width-to-Mass Mapping**: In the URDF generation, the mass ($m$) and inertia tensor ($I$) of each link are calculated based on the width. Since we assume constant density, increasing the width directly increases the link's volume and thus its mass.
+2.  **PD Control Interaction**: PyBullet's position control is implemented via internal PD regulators. When a wider link is used, the controller must exert higher torques to compensate for the increased inertia. This results in a much more aggressive "smacking" effect upon contact with the ball, as the kinetic energy is higher.
+3.  **Hardware-Control Trade-off**: This is the core of our Co-Design: the RL agent must learn to slow down its approach (reduce $v$) when the BO chooses a wider morphology to avoid the "smacking" penalty, or the BO must find the optimal width that balances structural stability with manageable momentum.
+
+* **Code Reference:** * Mass/Inertia Update: See [`CoDesignEnv.py`](./CoDesignEnv.py) where the link properties are defined.
+    * Position Control: See `p.setJointMotorControl2` in [`CoDesignEnv.py`](./CoDesignEnv.py).
+      
+### Q4: How is the Reward Function defined for the RL agent?
+**Answer:** The reward function is a multi-objective weighted sum designed to balance task completion, efficiency, and safety. It consists of the following components:
+1.  **Task Progress (Distance)**: A dense reward based on the Euclidean distance between the ball and the target goal.
+2.  **Impact Penalty (Anti-Smacking)**: To prevent aggressive striking, we penalize excessive contact forces: $r_{impact} = -w_f \cdot \|F_{contact}\|^2$.
+3.  **Control Effort (Action Regularization)**: To ensure smooth motion and energy efficiency, we penalize large or sudden joint torques and arbitrary swinging.
+4.  **Success Bonus**: A sparse positive reward granted only when the ball successfully reaches the target zone.
+
+* **Code Reference:** Detailed logic can be found in the `compute_reward()` or `step()` function in [`CoDesignEnv.py`](./CoDesignEnv.py).
+
+---
+
+### Q5: What specific metric is passed to the Bayesian Optimizer (BO)?
+**Answer:** We pass the **Mean Evaluation Reward** to the Bayesian Optimizer (Optuna). 
+Since Reinforcement Learning is inherently stochastic (due to random initial states and policy noise), a single episode's reward can be noisy. To provide a stable "score" for the hardware morphology:
+* After training, we run **5 evaluation episodes** using the deterministic policy.
+* The **average (mean)** of these rewards is returned to the BO as the objective value.
+* This ensures that the BO optimizes for **consistent hardware performance** rather than a "lucky" single trial.
+
+* **Code Reference:** See the evaluation loop and `mean_reward` calculation in [`train.py`](./train.py).
 
