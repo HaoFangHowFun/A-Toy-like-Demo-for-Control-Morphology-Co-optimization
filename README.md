@@ -9,9 +9,7 @@ This repository implements a "Hardware-in-the-loop" optimization cycle:
 2.  **Policy Learning**: Proximal Policy Optimization (PPO) trains a controller for the specific hardware.
 3.  **Performance Feedback**: The resulting reward is fed back to Optuna to guide the next hardware iteration.
 <img src="assets/codesign_framework.png" width="500">
-
-#### Video Link
-[Watch the video](https://youtu.be/NjFz9qAf6IE)
+[Video Link](https://youtu.be/NjFz9qAf6IE)
 ---
 
 ## 🛠 Installation
