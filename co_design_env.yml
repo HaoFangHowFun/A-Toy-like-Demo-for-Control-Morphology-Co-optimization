@@ -1,0 +1,31 @@
+name: co_design_env
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - scipy
+  - matplotlib
+  - pandas
+  - pyyaml
+  - tqdm
+  - sqlalchemy
+  - optuna
+  - pybullet
+  - opencv
+  # Deep Learning (Standard CUDA 12.1 setup for stability)
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - pip:
+      - gymnasium==1.2.3
+      - stable-baselines3==2.7.1
+      - mecademicpy==2.3.1
+      - shimmy==2.0.0
+      - dataclasses-json
+      - requests
