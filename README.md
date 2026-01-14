@@ -1,42 +1,82 @@
-# A Toy-like Demo for Control-Morphology Co-optimization
+# Co-Design Optimization for Robotic Grasping
 
-Co-Design Optimization for Robotic Grasping
-This project implements a co-optimization framework that simultaneously evolves robot hardware parameters and control policies using Optuna and Stable Baselines3 (PPO).
+A modular framework for hardware-control co-optimization. This project utilizes **Optuna** for hardware parameter evolution and **Stable Baselines3 (PPO)** for learning robust control policies in a **PyBullet** physics environment.
 
-🛠 Installation
-To set up the environment using Conda:
+## 📌 Project Overview
 
-Bash
+This repository implements a "Hardware-in-the-loop" optimization cycle:
+1.  **Hardware Evolution**: Optuna samples structural parameters (link lengths, widths, etc.).
+2.  **Policy Learning**: Proximal Policy Optimization (PPO) trains a controller for the specific hardware.
+3.  **Performance Feedback**: The resulting reward is fed back to Optuna to guide the next hardware iteration.
 
-# Create environment from file
-conda env create -f co-design.yml
+---
+
+## 🛠 Installation
+
+Ensure you have [Conda](https://docs.conda.io/en/latest/) installed.
+
+```bash
+# Clone the repository
+git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
+cd your-repo-name
+
+# Create environment from the provided YAML file
+conda env create -f environment.yml
 
 # Activate the environment
 conda activate your_env_name
-🚀 Usage & Expected Outcomes
-1. Training (train.py)
-Run the co-optimization loop to find the best hardware-control combination.
 
-Command: python train.py
+```
 
-Outcome: * Generates codesign.db (Optuna database).
+---
 
-Saves best_model_checkpoint.zip (Trained PPO weights).
+## 🚀 Usage & Expected Outcomes
 
-Exports demonstration videos in /best_videos.
+### 1. Training & Optimization
 
-2. Data Retrieval (query.py)
-Fetch and analyze specific trial results from the database.
+Run the main co-design loop.
 
-Command: python query.py
+```bash
+python train.py
 
-Outcome: * Displays a formatted table showing Trial ID, Reward, and Hardware Configuration (l1, l2, w, beta).
+```
 
-3. Visualization (test.py)
-Validate a specific hardware design in a GUI-based simulation.
+* **Outcome**:
+* Populates `codesign.db` with trial data.
+* Saves the best-performing model to `best_model_checkpoint.zip`.
+* Generates demo videos in the `best_videos/` directory.
 
-Command: python test.py
 
-Outcome: * Launches a PyBullet GUI window.
 
-Renders the robot performing the grasping task with the optimized hardware parameters.
+### 2. Result Retrieval
+
+Analyze specific trial results from the SQLite database.
+
+```bash
+python query.py
+
+```
+
+* **Outcome**: Displays a summary table of **Trial ID**, **Reward**, and **Hardware Configurations** (e.g., link lengths , joint friction , etc.).
+
+### 3. Visual Validation
+
+Launch a GUI simulation to observe the robot's performance with specific parameters.
+
+```bash
+python test.py
+
+```
+
+* **Outcome**: Opens a **PyBullet GUI** window showing the optimized robot performing grasping tasks in real-time.
+
+---
+
+## 🧪 Key Features
+
+* **Dynamic Environment**: Supports real-time hardware reconfiguration within PyBullet.
+* **Checkpointing**: Saves the best-performing policy and hardware metadata for reproducibility.
+* **Visualization**: Automatic video logging of new performance records during training.
+
+
+
