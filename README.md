@@ -8,6 +8,7 @@ This repository implements a "Hardware-in-the-loop" optimization cycle:
 1.  **Hardware Evolution**: Optuna samples structural parameters (link lengths, widths, etc.).
 2.  **Policy Learning**: Proximal Policy Optimization (PPO) trains a controller for the specific hardware.
 3.  **Performance Feedback**: The resulting reward is fed back to Optuna to guide the next hardware iteration.
+
 <img src="assets/codesign_framework.png" width="500">
 
 [Video Link](https://youtu.be/NjFz9qAf6IE)
@@ -48,7 +49,8 @@ python train.py
 * Saves the best-performing model to `best_model_checkpoint.zip`.
 * Generates demo videos in the `best_videos/` directory.
 
-
+> [!IMPORTANT]
+> **Starting a Fresh Training:** > If you wish to reset the co-optimization process, please ensure you remove `best_model_checkpoint.zip` and the `codesign.db` database from the root folder. This prevents the script from loading previous weights or trial history, ensuring a clean state for the new session.
 
 ### 2. Result Retrieval
 
@@ -79,6 +81,8 @@ python test.py
 * **Dynamic Environment**: Supports real-time hardware reconfiguration within PyBullet.
 * **Checkpointing**: Saves the best-performing policy and hardware metadata for reproducibility.
 * **Visualization**: Automatic video logging of new performance records during training.
+
+
 
 ## 📝 Q&A Section (Technical Discussion)
 
